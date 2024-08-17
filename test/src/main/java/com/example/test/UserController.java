@@ -1,45 +1,40 @@
-package com.example.test; // Package declaration
+package com.example.test;
 
-import org.springframework.web.bind.annotation.*; // Import Spring MVC annotations
-import java.util.ArrayList; // Import ArrayList
-import java.util.List; // Import List
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
-// Annotate the class as a REST controller
 @RestController
+@RequestMapping("/users")
 public class UserController {
-    // Declare a private List to hold User objects in memory
     private List<User> users = new ArrayList<>();
 
-    // Handle POST requests to the "/users" endpoint
-    @PostMapping("/users")
-    public List<User> addUsers(@RequestBody List<User> users) {
-        // Add all User objects from the request body to the in-memory list
+    @PostMapping
+    public ResponseEntity<String> addUsers(@RequestBody List<User> users) {
+        if (users == null || users.isEmpty()) {
+            return new ResponseEntity<>("No users provided", HttpStatus.BAD_REQUEST);
+        }
         this.users.addAll(users);
-        // Return the added User objects in the response
-        return users;
+        return new ResponseEntity<>("Users added successfully", HttpStatus.CREATED);
     }
 
-    // Handle GET requests to the "/users" endpoint
-    @GetMapping("/users")
-    public String getAllUsers() {
-        // Initialize a StringBuilder to construct the HTML response
+    @GetMapping
+    public ResponseEntity<String> getAllUsers() {
         StringBuilder response = new StringBuilder("<html><body>");
 
-        // Iterate through each User object in the users list
         for (User user : users) {
-            // Append the user's name and email to the response as a paragraph
             response.append("<p>Name: ")
-                    .append(user.getName()) // Get the user's name
+                    .append(user.getName())
                     .append(", Email: ")
                     .append(user.getEmail())
                     .append(", School: ")
                     .append(user.getSchool())
-                    .append("</p>"); // Close the paragraph tag
+                    .append("</p>");
         }
 
-        // Append closing HTML tags to the response
         response.append("</body></html>");
-        // Return the constructed HTML string
-        return response.toString();
+        return new ResponseEntity<>(response.toString(), HttpStatus.OK);
     }
 }
